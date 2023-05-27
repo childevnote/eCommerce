@@ -20,7 +20,7 @@ import lombok.ToString;
 /*
  * Category와 childCategories 관계는 1:n으로 매핑
  * Product와 Category는 N:N으로 매핑
-*/
+ */
 
 @Getter
 @Setter
@@ -30,18 +30,18 @@ import lombok.ToString;
 @Table(name="app_category")
 public class Category extends AbstractEntity {
 
-	@Column(name = "name", nullable = false)
-	private String name;	
-	
+    @Column(name = "name", nullable = false)
+    private String name;
+
     @ManyToMany( fetch = FetchType.EAGER, mappedBy = "categories")
-	private Set<Product> products;
-	
+    private Set<Product> products;
+
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "parent")
     private Set<Category> childCategories;
 
     @ManyToOne
     @JoinColumn(name = "parentid")
-	@JsonIgnore
+    @JsonIgnore
     private Category parent;
 
 }

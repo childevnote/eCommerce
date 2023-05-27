@@ -14,6 +14,8 @@ import kr.ac.hansung.exception.NotFoundException;
 import kr.ac.hansung.service.CategoryService;
 import kr.ac.hansung.service.ProductService;
 
+import java.util.Set;
+
 
 /* API Endpoint for categories and products association
  *
@@ -40,7 +42,15 @@ public class CategoryProductsController {
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<?> retrieveAllProducts(@PathVariable Long categoryid) {
 
-		
+		// Getting the requiring category; or throwing exception if not found
+		final Category category = categoryService.getCategoryById(categoryid);
+		if (category == null)
+			throw new NotFoundException(categoryid);
+
+		// Getting all products for the category
+		final Set<Product> products = category.getProducts();
+
+		return ResponseEntity.ok(products);
 	}		
 	
 	@RequestMapping(path = "/{productid}", method = RequestMethod.POST)
@@ -70,7 +80,26 @@ public class CategoryProductsController {
 
 	@RequestMapping(path = "/{productid}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> removeProduct(@PathVariable Long categoryid, @PathVariable Long productid) {
+// Getting the requiring category; or throwing exception if not found
+		final Category category = categoryService.getCategoryById(categoryid);
+		if (category == null)
+			throw new NotFoundException(categoryid);
 
+		// Getting the requiring product; or throwing exception if not found
+		final Product product = productService.getProductById(productid);
+		if (product == null)
+			throw new NotFoundException(productid);
+
+		// Validating if association exists...
+		if (!productService.hasCategory(product, category)) {
+			throw new IllegalArgumentException(
+					"Product " + product.getId() + " does not contain category " + category.getId());
+		}
+
+		// Disassociating product from category...
+		productService.removeCategory(product, category);
+
+		return ResponseEntity.noContent().build();
 		
 	}
 

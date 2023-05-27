@@ -49,8 +49,20 @@ public class CategorySubcategoriesController {
 
     @RequestMapping(path = "/{childid}", method = RequestMethod.POST)
     public ResponseEntity<?> addSubcategory(@PathVariable Long parentid, @PathVariable Long childid) {
-    	
-       
+        // Getting the parent category; or throwing exception if not found
+        final Category parent = categoryService.getCategoryById(parentid);
+        if (parent == null)
+            throw new NotFoundException(parentid);
+
+        // Getting the child category; or throwing exception if not found
+        final Category child = categoryService.getCategoryById(childid);
+        if (child == null)
+            throw new NotFoundException(childid);
+
+        // Associating parent with subcategory
+        categoryService.addChildCategory(child, parent);
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @RequestMapping(path = "/{childid}", method = RequestMethod.DELETE)

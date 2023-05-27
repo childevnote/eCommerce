@@ -54,7 +54,13 @@ public class ProductController {
 
 	@RequestMapping(path = "/{id}", method = RequestMethod.GET)
 	public ResponseEntity<Product> retrieveProduct(@PathVariable Long id) {
+		Product product = productService.getProductById(id);
 
+		if (product == null) {
+			throw new NotFoundException(id);
+		}
+
+		return new ResponseEntity<Product>(product, HttpStatus.OK);
 		
 	}
 
@@ -70,7 +76,18 @@ public class ProductController {
     
 	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
 	public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody @Valid ProductDto request) {
-		
+		Product product = productService.getProductById(id);
+
+		if (product == null) {
+			throw new NotFoundException(id);
+		}
+
+		product.setName(request.getName());
+		product.setPrice(request.getPrice());
+
+		productService.updateProduct(product);
+
+		return new ResponseEntity<Product>(product, HttpStatus.OK);
 		
 		
 	}
@@ -102,5 +119,6 @@ public class ProductController {
         @NotNull(message = "name is required")
         @Min(0)
         private Double price;
+
 	}
 }

@@ -1,3 +1,4 @@
+
 -- Categories
 insert into app_category (id, name, parentid) values (1, 'Electronics', null);
 insert into app_category (id, name, parentid) values (2, 'Clothing, Shoes & Accessories', null);

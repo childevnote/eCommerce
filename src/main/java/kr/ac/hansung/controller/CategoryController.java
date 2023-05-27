@@ -6,6 +6,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,9 +54,13 @@ public class CategoryController {
 
     @RequestMapping(path = "/{id}", method = RequestMethod.GET)
     public ResponseEntity<?> retrieveCategory(@PathVariable Long id) {
-    	
-       
-		
+        Category category = categoryService.getCategoryById(id);
+
+        if (category == null) {
+            throw new NotFoundException(id);
+        }
+
+        return ResponseEntity.ok(category);
     }
 
     // DTO(Data Transfer Object) : 계층간 데이터 교환을 위한 객체, 여기서는 클라이언트(Postman)에서 오는 데이터를 수신할 목적으로 사용
@@ -71,7 +77,17 @@ public class CategoryController {
 
     @RequestMapping(path = "/{id}", method = RequestMethod.PUT)
     public ResponseEntity<?> updateCategory(@PathVariable Long id, @RequestBody @Valid CategoryDto request) {
-    	
+        Category category = categoryService.getCategoryById(id);
+
+        if (category == null) {
+            throw new NotFoundException(id);
+        }
+
+        category.setName(request.getName());
+
+        categoryService.updateCategory(category);
+
+        return ResponseEntity.ok(category);
        
     }
 
@@ -92,18 +108,13 @@ public class CategoryController {
 
     }
 
+    @Getter
+    @Setter
     static class CategoryDto {
         @NotNull(message = "name is required")
         @Size(message = "name must be equal to or lower than 100", min = 1, max = 100)
         private String name;
 
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
     }
 
 }
